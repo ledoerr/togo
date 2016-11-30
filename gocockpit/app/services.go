@@ -67,7 +67,7 @@ func RegisterService(id string, serviceUrl string, pushesHeartbeat bool) Service
 		service.StatusUrl = serviceUrl
 		service.Timestamp = time.Now()
 		service.PushesHeartbeat = pushesHeartbeat
-		services[serviceId] = service
+		services[ServiceID(id)] = service
 	}
 
 	lock.Unlock()
@@ -84,7 +84,7 @@ func UpdateServiceStatus(id string, status string) Service {
 	if exists {
 		service.Status = status
 		service.Timestamp = time.Now()
-		services[id] = service
+		services[ServiceID(id)] = service
 	}
 
 	lock.Unlock()
@@ -95,7 +95,7 @@ func UpdateServiceStatus(id string, status string) Service {
 func GetServiceById(id ServiceID) (Service, bool) {
 
 	lock.Lock()
-	service, exists := services[string(id)]
+	service, exists := services[id]
 	lock.Unlock()
 
 	return service, exists
