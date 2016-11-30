@@ -1,16 +1,19 @@
-{{set . "title" "Home"}}
+{{set . "title" "Cockpit"}}
 {{template "header.html" .}}
 
 <header class="jumbotron" style="background-color:#A9F16C">
   <div class="container">
     <div class="row">
-      <h1>It works!</h1>
+      <h1>Cockpit - ToGo</h1>
       <p></p>
     </div>
   </div>
 </header>
 
 <div class="container">
+
+  {{template "list.html" .}}
+
   <div class="row">
     <div class="span6">
       {{template "flash.html" .}}

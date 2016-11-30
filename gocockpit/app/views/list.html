@@ -1,0 +1,21 @@
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Timestamp</th>
+        <th>Service URL</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .services}}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.Status}}</td>
+        <td>{{.Timestamp}}</td>
+        <td>{{.StatusUrl}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
