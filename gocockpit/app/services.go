@@ -3,7 +3,7 @@ package app
 import (
 	_ "fmt"
 	"time"
-	_ "sync"
+	"sync"
 )
 
 type Service struct {
@@ -16,33 +16,60 @@ type Service struct {
 
 var services = make(map[string]Service)
 
+var lock = sync.Mutex{}
+
 func init() {
-	RegisterService("example.service");
+	RegisterService("example.service", "http://localhost:9999/health");
+	RegisterService("sprong.service", "http://localhost:9100/health");
 }
 
 func GetAllServices() []Service {
 
 	list := make([]Service, 0, len(services))
 
+	lock.Lock()
+
 	for _, service := range services {
 		list = append(list, service)
 	}
 
+	lock.Unlock()
+
 	return list
 }
 
-func RegisterService(id string) Service {
+func RegisterService(id string, serviceUrl string) Service {
+
+	lock.Lock()
 
 	service, exists := services[id]
 
 	if(!exists) {
 		service = Service{}
-		service.Id = "luki"
-		service.Status = "UP"
-		service.StatusUrl = "http://some/endpoint"
+		service.Id = id
+		service.Status = "UNKNOWN"
+		service.StatusUrl = serviceUrl
 		service.Timestamp = time.Now();
 		services[id] = service
 	}
+
+	lock.Unlock()
+
+	return service
+}
+
+func UpdateStatusService(id string, status string) Service {
+
+	lock.Lock()
+
+	service, exists := services[id]
+
+	if(exists) {
+		service.Status = status
+		service.Timestamp = time.Now();
+	}
+
+	lock.Unlock()
 
 	return service
 }
