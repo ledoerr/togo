@@ -3,6 +3,7 @@ package app
 import (
 	_ "fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -22,6 +23,10 @@ type Service struct {
 var services = make(map[ServiceID]Service)
 
 var lock = sync.Mutex{}
+
+func (s Service) IsPollable() bool {
+	return strings.HasSuffix(s.StatusUrl, "/health")
+}
 
 func init() {
 	go checkHeartbeat()
@@ -46,7 +51,6 @@ func (s *Service) checkHeartbeat() bool{
 
 
 func GetAllServices() []Service {
-
 	list := make([]Service, 0, len(services))
 	var listKey []string
 
@@ -74,14 +78,13 @@ func RegisterService(id string, serviceUrl string, pushesHeartbeat bool) Service
 	service, exists := services[ServiceID(id)]
 
 	if !exists {
-		serviceId := ServiceID(id)
-		service = Service{}
-		service.Id = serviceId
+		service := Service{}
+		service.Id = ServiceID(id)
 		service.Status = "UNKNOWN"
 		service.StatusUrl = serviceUrl
 		service.Timestamp = time.Now()
 		service.PushesHeartbeat = pushesHeartbeat
-		services[serviceId] = service
+		services[ServiceID(id)] = service
 	}
 
 	lock.Unlock()
@@ -98,11 +101,21 @@ func UpdateServiceStatus(id string, status string) Service {
 	if exists {
 		service.Status = status
 		service.Timestamp = time.Now()
+		services[ServiceID(id)] = service
 	}
 
 	lock.Unlock()
 
 	return service
+}
+
+func GetServiceById(id ServiceID) (Service, bool) {
+
+	lock.Lock()
+	service, exists := services[id]
+	lock.Unlock()
+
+	return service, exists
 }
 
 var heartbeatTimeout = time.Second * 30
