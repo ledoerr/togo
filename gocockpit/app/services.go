@@ -1,9 +1,9 @@
 package app
 
 import (
-	"fmt"
+	_ "fmt"
 	"time"
-	"sync"
+	_ "sync"
 )
 
 type Service struct {
