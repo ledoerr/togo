@@ -2,16 +2,18 @@ package app
 
 import (
 	_ "fmt"
-	"time"
 	"sync"
+	"time"
 )
 
+type ServiceID string
+
 type Service struct {
-	Id 		string `json:"id"`
-	Status	string `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	StatusUrl	string `json:"status_url"`
-	Data	map[string]string `json:"data"`
+	Id        ServiceID         `json:"id"`
+	Status    string            `json:"status"`
+	Timestamp time.Time         `json:"timestamp"`
+	StatusUrl string            `json:"status_url"`
+	Data      map[string]string `json:"data"`
 }
 
 var services = make(map[string]Service)
@@ -19,8 +21,8 @@ var services = make(map[string]Service)
 var lock = sync.Mutex{}
 
 func init() {
-	RegisterService("example.service", "http://localhost:9999/health");
-	RegisterService("sprong.service", "http://localhost:9100/health");
+	RegisterService("example.service", "http://localhost:9999/health")
+	RegisterService("sprong.service", "http://localhost:9100/health")
 }
 
 func GetAllServices() []Service {
@@ -38,24 +40,24 @@ func GetAllServices() []Service {
 	return list
 }
 
-func RegisterService(id string, serviceUrl string) Service {
+func RegisterService(id string, serviceUrl string) ServiceID {
 
 	lock.Lock()
 
 	service, exists := services[id]
 
-	if(!exists) {
+	if !exists {
 		service = Service{}
-		service.Id = id
+		service.Id = ServiceID(id)
 		service.Status = "UNKNOWN"
 		service.StatusUrl = serviceUrl
-		service.Timestamp = time.Now();
+		service.Timestamp = time.Now()
 		services[id] = service
 	}
 
 	lock.Unlock()
 
-	return service
+	return service.Id
 }
 
 func UpdateServiceStatus(id string, status string) Service {
@@ -64,9 +66,9 @@ func UpdateServiceStatus(id string, status string) Service {
 
 	service, exists := services[id]
 
-	if(exists) {
+	if exists {
 		service.Status = status
-		service.Timestamp = time.Now();
+		service.Timestamp = time.Now()
 	}
 
 	lock.Unlock()
