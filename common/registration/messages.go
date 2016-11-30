@@ -1,4 +1,4 @@
-package common
+package registration
 
 import (
 	"time"
@@ -8,6 +8,7 @@ import (
 type RegisterRequest struct {
 	Id string `json:"id"`
 	PollUrl string `json:"pollUrl"`
+	PushesHeartbeat bool `json:"pushesHeartbeat"`
 }
 
 type RegisterResponse struct {

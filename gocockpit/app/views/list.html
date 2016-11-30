@@ -5,6 +5,7 @@
         <th>ID</th>
         <th>Status</th>
         <th>Timestamp</th>
+        <th>Heartbeat</th>
         <th>Service URL</th>
     </tr>
     </thead>
@@ -14,6 +15,7 @@
         <td>{{.Id}}</td>
         <td>{{.Status}}</td>
         <td>{{.Timestamp}}</td>
+        <td>{{.HeartbeatTimeout}}</td>
         <td>{{.StatusUrl}}</td>
     </tr>
     {{end}}
