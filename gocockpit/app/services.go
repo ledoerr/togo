@@ -58,7 +58,7 @@ func RegisterService(id string, serviceUrl string) Service {
 	return service
 }
 
-func UpdateStatusService(id string, status string) Service {
+func UpdateServiceStatus(id string, status string) Service {
 
 	lock.Lock()
 
