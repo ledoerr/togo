@@ -31,6 +31,7 @@ func main() {
 
 	go startHttpServer()
 	registerAtCockpitServer()
+	sendHeartbeat()
 	heartbeatPeriod := time.Tick(HEARTBEAT_PERIOD)
 	for {
 		select {

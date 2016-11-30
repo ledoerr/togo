@@ -118,7 +118,7 @@ func GetServiceById(id ServiceID) (Service, bool) {
 	return service, exists
 }
 
-var heartbeatTimeout = time.Second * 30
+var heartbeatTimeout = time.Second * 11
 
 func UpdateServiceHeartbeat(id string, heatbeatSentAt time.Time) {
 	serviceId := ServiceID(id)
