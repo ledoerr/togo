@@ -16,5 +16,10 @@
     {{range .moreScripts}}
       <script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
     {{end}}
+
+    <script>setTimeout(function(){
+        window.location.reload(1);
+      }, 3000);</script>
+
   </head>
   <body>

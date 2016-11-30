@@ -2,6 +2,7 @@ package app
 
 import (
 	_ "fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -20,13 +21,16 @@ var services = make(map[string]Service)
 
 var lock = sync.Mutex{}
 
+func (s Service) IsPollable() bool {
+	return strings.HasSuffix(s.StatusUrl, "/health")
+}
+
 func init() {
 	RegisterService("example.service", "http://localhost:9999/health")
 	RegisterService("sprong.service", "http://localhost:9100/health")
 }
 
 func GetAllServices() []Service {
-
 	list := make([]Service, 0, len(services))
 
 	lock.Lock()
@@ -47,7 +51,7 @@ func RegisterService(id string, serviceUrl string) ServiceID {
 	service, exists := services[id]
 
 	if !exists {
-		service = Service{}
+		service := Service{}
 		service.Id = ServiceID(id)
 		service.Status = "UNKNOWN"
 		service.StatusUrl = serviceUrl
@@ -69,9 +73,19 @@ func UpdateServiceStatus(id string, status string) Service {
 	if exists {
 		service.Status = status
 		service.Timestamp = time.Now()
+		services[id] = service
 	}
 
 	lock.Unlock()
 
 	return service
+}
+
+func GetServiceById(id ServiceID) (Service, bool) {
+
+	lock.Lock()
+	service, exists := services[string(id)]
+	lock.Unlock()
+
+	return service, exists
 }
