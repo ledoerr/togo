@@ -1,0 +1,18 @@
+/** Table **/
+
+table {
+    border-collapse: collapse;
+    border: 1px solid #aaa;
+    width: 100%;
+}
+
+th {
+    background: #eee !important;
+}
+
+td, th {
+    padding: 5px;
+    text-align: left;
+    border-right: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+}
