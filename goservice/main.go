@@ -6,6 +6,7 @@ import (
 	_ "expvar"
 	"fmt"
 	"github.com/ledoerr/togo/common/registration"
+	"github.com/ledoerr/togo/common/notification"
 	"io"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ var (
 	pollHandler      = "/debug/vars"
 	pollUrl          = "http://" + hostname + ":" + port + pollHandler
 	pushUrl          = ""
+	pushesHeartbeat  = true
 )
 
 func main() {
@@ -33,7 +35,7 @@ func main() {
 	for {
 		select {
 		case <-heartbeatPeriod:
-			fmt.Println("foobar")
+			sendHeartbeat()
 		}
 	}
 }
@@ -42,6 +44,23 @@ func startHttpServer() {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func sendHeartbeat(){
+	heartbeat := generateHeartbeat()
+	_, err := http.Post(cockpitServer+"/"+pushUrl+"/heartbeat", "application/json", bytes.NewBuffer(heartbeat))
+	if err != nil {
+		log.Println("Sending heartbeat failed:", err)
+	}
+}
+
+func generateHeartbeat() []byte {
+	heartbeat := notification.Heartbeat{Id: name, Time:time.Now()}
+	b, err := json.Marshal(heartbeat)
+	if err != nil {
+		log.Println(err)
+	}
+	return b
 }
 
 func registerAtCockpitServer() {
@@ -56,7 +75,7 @@ func registerAtCockpitServer() {
 }
 
 func generateRequest() []byte {
-	request := common.RegisterRequest{Id: name, PollUrl: pollUrl}
+	request := registration.RegisterRequest{Id: name, PollUrl: pollUrl, PushesHeartbeat: pushesHeartbeat}
 	b, err := json.Marshal(request)
 	if err != nil {
 		log.Fatal(err)
@@ -66,7 +85,7 @@ func generateRequest() []byte {
 
 func decodeResponse(response *http.Response) {
 	dec := json.NewDecoder(response.Body)
-	responseMessage := common.RegisterResponse{}
+	responseMessage := registration.RegisterResponse{}
 	err := dec.Decode(&responseMessage)
 	if err != nil {
 		io.Copy(os.Stdout, response.Body)
