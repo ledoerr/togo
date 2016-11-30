@@ -24,9 +24,26 @@ var services = make(map[ServiceID]Service)
 var lock = sync.Mutex{}
 
 func init() {
+	go checkHeartbeat()
 	RegisterService("example.service", "http://localhost:9999/health", false)
 	RegisterService("sprong.service", "http://localhost:9100/health", false)
 }
+
+func checkHeartbeat() {
+	for {
+		allServices := GetAllServices()
+		for _,service := range allServices {
+			if service.PushesHeartbeat && !service.checkHeartbeat() {
+				UpdateServiceStatus(string(service.Id), "DOWN: Heartbeat timeout")
+			}
+		}
+	}
+}
+
+func (s *Service) checkHeartbeat() bool{
+	return time.Now().Before(s.HeartbeatTimeout)
+}
+
 
 func GetAllServices() []Service {
 
@@ -99,8 +116,8 @@ func UpdateServiceHeartbeat(id string, heatbeatSentAt time.Time) {
 	if exists {
 		service.HeartbeatTimeout = heatbeatSentAt.Add(heartbeatTimeout)
 		service.Timestamp = time.Now()
+		service.Status = "UP"
 		services[serviceId] = service
 	}
 	lock.Unlock()
-
 }
